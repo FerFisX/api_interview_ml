@@ -1,5 +1,5 @@
 
-# API de Predicción de Alquileres de Bicicletas
+# API de Predicción de Alquileres de Monopatines
 
 Este proyecto consiste en una API construida con FastAPI que utiliza un modelo de machine learning para predecir el número total de alquileres de bicicletas basado en diversas características. También incluye una interfaz sencilla para interactuar con la API.
 
