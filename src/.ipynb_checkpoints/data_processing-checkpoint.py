@@ -7,8 +7,7 @@ from sklearn.pipeline import Pipeline
 def load_and_preprocess_data(data_path, test_size=0.2, random_state=None):
     """
     Carga el dataset, aplica correcciones específicas de valores faltantes (EDA),
-    codifica variables categóricas, divide los datos usando train_test_split,
-    y escala las características numéricas.
+    divide los datos usando train_test_split, y define el preprocesador (sin aplicarlo).
 
     Args:
         data_path (str): Ruta al archivo CSV del dataset.
@@ -17,15 +16,14 @@ def load_and_preprocess_data(data_path, test_size=0.2, random_state=None):
 
     Returns:
         tuple: Contiene los conjuntos de entrenamiento y prueba para características (X_train, X_test)
-               y la variable objetivo (y_train, y_test), y el preprocesador ajustado.
+               y la variable objetivo (y_train, y_test), y el preprocesador sin ajustar.
     """
     try:
         df = pd.read_csv(data_path)
     except FileNotFoundError:
         print(f"Error: El archivo '{data_path}' no fue encontrado.")
         return None, None, None, None, None
-
-    # --- Correcciones de valores faltantes basadas en el EDA ---
+    # Correciones basadas en el EDA
     # Para la columna 'hora'
     df.loc[313:318, 'hora'] = range(13, 13 + 6)
     df.loc[599:603, 'hora'] = range(2, 2 + 5)
@@ -47,24 +45,17 @@ def load_and_preprocess_data(data_path, test_size=0.2, random_state=None):
     categorical_features = ['temporada', 'clima', 'feriado', 'dia_trabajo', 'mes', 'dia_semana']
     numerical_features = ['anio', 'hora', 'temperatura', 'sensacion_termica', 'humedad', 'velocidad_viento']
 
-    # 3. Crear un preprocesador utilizando ColumnTransformer
+    # 3. Crear el preprocesador utilizando ColumnTransformer (SIN AJUSTARLO)
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', StandardScaler(), numerical_features),
             ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
         ])
 
-    # 4. Dividir los datos en conjuntos de entrenamiento y prueba usando train_test_split
-    df['fecha'] = pd.to_datetime(df['fecha']) # Asegurarse de que la fecha sea datetime
-    df = df.sort_values(by='fecha') # Ordenar por fecha antes de dividir (importante para datos temporales)
-    train_index = int(len(df) * (1 - test_size))
-    X_train = X.iloc[:train_index]
-    X_test = X.iloc[train_index:]
-    y_train = y.iloc[:train_index]
-    y_test = y.iloc[train_index:]
-
-    # 5. Ajustar y transformar los datos de entrenamiento y solo transformar los datos de prueba
-    X_train = preprocessor.fit_transform(X_train)
-    X_test = preprocessor.transform(X_test)
+    # 4. Dividir los datos en conjuntos de entrenamiento y prueba
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    df = df.sort_values(by='fecha')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state, shuffle=False)
 
     return X_train, X_test, y_train, y_test, preprocessor
+
