@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Alquileres</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Predicción de Alquileres de Bicicletas</h1>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="temporada">Temporada (1-4):</label>
+                <input type="number" id="temporada" name="temporada" min="1" max="4" value="1" required>
+            </div>
+            <div class="form-group">
+                <label for="anio">Año (0 o 1):</label>
+                <input type="number" id="anio" name="anio" min="0" max="1" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="mes">Mes (1-12):</label>
+                <input type="number" id="mes" name="mes" min="1" max="12" value="1" required>
+            </div>
+            <div class="form-group">
+                <label for="hora">Hora (0-23):</label>
+                <input type="number" id="hora" name="hora" min="0" max="23" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="feriado">Feriado (0 o 1):</label>
+                <input type="number" id="feriado" name="feriado" min="0" max="1" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="dia_trabajo">Día de Trabajo (0 o 1):</label>
+                <input type="number" id="dia_trabajo" name="dia_trabajo" min="0" max="1" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="clima">Clima (1-4):</label>
+                <input type="number" id="clima" name="clima" min="1" max="4" value="1" required>
+            </div>
+            <div class="form-group">
+                <label for="temperatura">Temperatura (0-1):</label>
+                <input type="number" step="0.01" id="temperatura" name="temperatura" min="0" max="1" value="0.24" required>
+            </div>
+            <div class="form-group">
+                <label for="sensacion_termica">Sensación Térmica (0-1):</label>
+                <input type="number" step="0.01" id="sensacion_termica" name="sensacion_termica" min="0" max="1" value="0.2879" required>
+            </div>
+            <div class="form-group">
+                <label for="humedad">Humedad (0-1):</label>
+                <input type="number" step="0.01" id="humedad" name="humedad" min="0" max="1" value="0.81" required>
+            </div>
+            <div class="form-group">
+                <label for="velocidad_viento">Velocidad del Viento (0-1):</label>
+                <input type="number" step="0.01" id="velocidad_viento" name="velocidad_viento" min="0" max="1" value="0.0" required>
+            </div>
+            <div class="form-group">
+                <label for="dia_semana">Día de la Semana (0-6):</label>
+                <input type="number" id="dia_semana" name="dia_semana" min="0" max="6" value="6" required>
+            </div>
+            <button type="submit" class="predict-button">Predecir Alquileres</button>
+        </form>
+        <div id="predictionResult" class="result-container">
+            <h2>Resultado de la Predicción:</h2>
+            <p id="predictedRentals"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = parseFloat(value); // Convertir a número
+            });
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictedRentals').textContent = `${data.total_alquileres_predicho.toFixed(2)} alquileres`;
+            })
+            .catch(error => {
+                document.getElementById('predictedRentals').textContent = `Error al predecir: ${error}`;
+            });
+        });
+    </script>
+</body>
+</html>
